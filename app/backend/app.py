@@ -109,6 +109,20 @@ def chat():
         logging.exception("Exception in /chat")
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/health")
+def health():
+    return jsonify({"status": "healthy"})
+
+@app.route("/.well-known/microsoft-identity-association.json")
+def microsoft_identity_association():
+    return jsonify({"associatedApplications": [
+    {
+      "applicationId": "d3267f29-f006-489e-9ea9-52ac02b2b7a3"
+    }
+  ]
+})
+
+
 def ensure_openai_token():
     global openai_token
     if openai_token.expires_on < int(time.time()) - 60:
