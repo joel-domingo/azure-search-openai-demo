@@ -55,7 +55,8 @@ Search query:
         filter = "category ne '{}'".format(exclude_category.replace("'", "''")) if exclude_category else None
 
         # STEP 1: Generate an optimized keyword search query based on the chat history and the last question
-        prompt = self.query_prompt_template.format(chat_history=self.get_chat_history_as_text(history, include_last_turn=False), question=history[-1]["user"])
+        prompt = self.query_prompt_template.format(chat_history=self.get_chat_history_as_text(history), question=history[-1]["user"])
+        print(f"Prompt: {prompt}")
         completion = openai.Completion.create(
             engine=self.gpt_deployment, 
             prompt=prompt, 
@@ -64,6 +65,7 @@ Search query:
             n=1, 
             stop=["\n"])
         q = completion.choices[0].text
+        print(f"Search query: {q}")
 
         # STEP 2: Retrieve relevant documents from the search index with the GPT optimized query
         if overrides.get("semantic_ranker"):
@@ -110,5 +112,6 @@ Search query:
         for h in reversed(history if include_last_turn else history[:-1]):
             history_text = """<|im_start|>user""" +"\n" + h["user"] + "\n" + """<|im_end|>""" + "\n" + """<|im_start|>assistant""" + "\n" + (h.get("bot") + """<|im_end|>""" if h.get("bot") else "") + "\n" + history_text
             if len(history_text) > approx_max_tokens*4:
-                break    
+                break
+        print(f"History text: {history_text}")        
         return history_text
